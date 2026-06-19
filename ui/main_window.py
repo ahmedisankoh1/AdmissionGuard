@@ -40,7 +40,7 @@ class MainWindow(tk.Tk):
         # Application Header Title
         title_label = tk.Label(
             self,
-            text="SMS Navigation Hub",
+            text="Admission Guard",
             font=("Segoe UI", 18, "bold"),
             bg=self.bg_color,
             fg=self.primary_color
