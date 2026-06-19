@@ -18,7 +18,7 @@ class MainWindow(tk.Tk):
         self.result_service = result_service
         
         # Window configurations (increase height to fit 4 buttons)
-        self.title("Student Management System")
+        self.title("Admission Guard")
         self.geometry("400x460")
         self.resizable(False, False)
         
