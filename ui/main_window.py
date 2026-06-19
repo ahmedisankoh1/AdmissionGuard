@@ -2,6 +2,7 @@ import tkinter as tk
 from ui.student_form import StudentForm
 from ui.subject_form import SubjectForm
 from ui.subject_assignment_form import SubjectAssignmentForm
+from ui.result_form import ResultForm
 
 class MainWindow(tk.Tk):
     """
@@ -9,15 +10,16 @@ class MainWindow(tk.Tk):
     Provides a dark theme interface to open Student, Subject, and Assignment modules.
     """
 
-    def __init__(self, student_service, subject_service, assignment_service):
+    def __init__(self, student_service, subject_service, assignment_service, result_service):
         super().__init__()
         self.student_service = student_service
         self.subject_service = subject_service
         self.assignment_service = assignment_service
+        self.result_service = result_service
         
-        # Window configurations (increase height to fit 3 buttons)
+        # Window configurations (increase height to fit 4 buttons)
         self.title("Student Management System")
-        self.geometry("400x400")
+        self.geometry("400x460")
         self.resizable(False, False)
         
         # Colors
@@ -102,7 +104,22 @@ class MainWindow(tk.Tk):
             activebackground="#e0af68",
             command=self.open_assignment_manager
         )
-        btn_assign.pack(fill="x", ipady=8)
+        btn_assign.pack(fill="x", ipady=8, pady=(0, 12))
+
+        # 4. Result Management Button
+        btn_results = tk.Button(
+            container,
+            text="Manage Results",
+            font=("Segoe UI", 11, "bold"),
+            bg=self.primary_color,
+            fg=self.bg_color,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            activebackground="#89b4fa",
+            command=self.open_result_manager
+        )
+        btn_results.pack(fill="x", ipady=8)
 
     def open_student_manager(self):
         # Open StudentForm in a TopLevel window
@@ -115,3 +132,7 @@ class MainWindow(tk.Tk):
     def open_assignment_manager(self):
         # Open SubjectAssignmentForm in a TopLevel window
         SubjectAssignmentForm(self, self.student_service, self.assignment_service)
+
+    def open_result_manager(self):
+        # Open ResultForm in a TopLevel window
+        ResultForm(self, self.student_service, self.assignment_service, self.result_service)

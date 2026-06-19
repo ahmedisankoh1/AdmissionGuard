@@ -63,14 +63,25 @@ class DatabaseManager:
                 );
             """)
             
+            # Migrate results table if it has the old schema (i.e. 'marks' column exists)
+            try:
+                cursor.execute("PRAGMA table_info(results);")
+                columns = [col[1] for col in cursor.fetchall()]
+                if columns and "marks" in columns:
+                    print("Old 'results' table schema detected. Dropping table for recreation...")
+                    cursor.execute("DROP TABLE results;")
+            except sqlite3.Error as migration_error:
+                print("Error during results migration check:", migration_error)
+
             # Create results table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS results (
                     result_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     student_id INTEGER NOT NULL,
                     subject_id INTEGER NOT NULL,
-                    marks REAL NOT NULL,
-                    exam_date TEXT NOT NULL,
+                    assessment_mark REAL NOT NULL,
+                    exam_mark REAL NOT NULL,
+                    total_mark REAL NOT NULL,
                     FOREIGN KEY (student_id) REFERENCES students (student_id) ON DELETE CASCADE,
                     FOREIGN KEY (subject_id) REFERENCES subjects (subject_id) ON DELETE CASCADE
                 );

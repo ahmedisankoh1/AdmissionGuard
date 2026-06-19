@@ -107,7 +107,7 @@ class SubjectAssignmentForm(tk.Toplevel):
         
         # --- CENTER: Action Buttons Frame ---
         center_frame = tk.Frame(lists_frame, bg=self.bg_color)
-        center_frame.grid(row=0, column=1, sticky="center")
+        center_frame.grid(row=0, column=1)
         
         # Assign Button (Available -> Assigned)
         self.btn_assign = tk.Button(
