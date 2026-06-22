@@ -86,6 +86,15 @@ class DatabaseManager:
                     FOREIGN KEY (subject_id) REFERENCES subjects (subject_id) ON DELETE CASCADE
                 );
             """)
+
+            # Create users table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL
+                );
+            """)
             
             conn.commit()
             print("Database initialized and tables created successfully.")

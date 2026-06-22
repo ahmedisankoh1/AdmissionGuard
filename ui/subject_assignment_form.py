@@ -3,10 +3,10 @@ from tkinter import ttk
 from tkinter import messagebox
 from utils.validators import StudentValidationError
 
-class SubjectAssignmentForm(tk.Toplevel):
+class SubjectAssignmentForm(tk.Frame):
     """
     Tkinter Subject Assignment Form.
-    Allows assigning and removing subjects for students.
+    Inherits from tk.Frame to load inside the main window's content frame.
     """
 
     def __init__(self, parent, student_service, assignment_service):
@@ -15,21 +15,18 @@ class SubjectAssignmentForm(tk.Toplevel):
         self.assignment_service = assignment_service
         self.selected_student_id = None
         
-        # Window configuration (wide layout for side-by-side lists)
-        self.title("Subject Assignment")
-        self.geometry("680x480")
-        self.resizable(False, False)
-        
-        # Theme colors
-        self.bg_color = "#1e1e2e"
-        self.card_color = "#252538"
-        self.text_color = "#f8f8f2"
-        self.primary_color = "#74c7ec"  # Blue for Title
-        self.student_color = "#a6e3a1"  # Green
-        self.subject_color = "#cba6f7"  # Purple
-        self.delete_color = "#f38ba8"   # Red for Remove button
-        self.entry_bg = "#313244"
-        self.entry_fg = "#cdd6f4"
+        # Color palette (Professional Education theme)
+        self.bg_color = "#F8FAFC"
+        self.card_color = "#FFFFFF"
+        self.text_primary = "#111827"
+        self.text_secondary = "#6B7280"
+        self.primary_color = "#1E3A8A"   # Deep Blue
+        self.secondary_color = "#3B82F6" # Bright Blue
+        self.success_color = "#10B981"   # Success Green (Assign button)
+        self.delete_color = "#EF4444"    # Red (Remove button)
+        self.entry_bg = "#F8FAFC"
+        self.entry_fg = "#111827"
+        self.entry_border = "#E2E8F0"
         
         self.configure(bg=self.bg_color)
         
@@ -41,23 +38,45 @@ class SubjectAssignmentForm(tk.Toplevel):
 
     def create_widgets(self):
         # Header title
+        header_frame = tk.Frame(self, bg=self.bg_color)
+        header_frame.pack(fill="x", padx=30, pady=(20, 10))
+
         title_label = tk.Label(
-            self,
+            header_frame,
             text="Subject Assignment Module",
             font=("Segoe UI", 16, "bold"),
             bg=self.bg_color,
-            fg=self.primary_color
+            fg=self.primary_color,
+            anchor="w"
         )
-        title_label.pack(pady=15)
+        title_label.pack(fill="x")
+
+        lbl_subtitle = tk.Label(
+            header_frame,
+            text="Assign available subjects to a student or remove currently assigned subjects.",
+            font=("Segoe UI", 10),
+            bg=self.bg_color,
+            fg=self.text_secondary,
+            anchor="w"
+        )
+        lbl_subtitle.pack(fill="x", pady=(2, 0))
         
         # 1. Student Selection Area
-        select_frame = tk.Frame(self, bg=self.card_color, padx=15, pady=15)
-        select_frame.pack(fill="x", padx=25, pady=5)
+        select_frame = tk.Frame(
+            self,
+            bg=self.card_color,
+            padx=20,
+            pady=15,
+            highlightbackground=self.entry_border,
+            highlightthickness=1,
+            bd=0
+        )
+        select_frame.pack(fill="x", padx=30, pady=5)
         
         tk.Label(
-            select_frame, text="Select Student *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
-        ).grid(row=0, column=0, sticky="w", padx=(0, 10))
+            select_frame, text="Select Student *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
+        ).grid(row=0, column=0, sticky="w", padx=(0, 15))
         
         # Combobox setup
         style = ttk.Style()
@@ -67,13 +86,14 @@ class SubjectAssignmentForm(tk.Toplevel):
             fieldbackground=self.entry_bg,
             background=self.entry_bg,
             foreground=self.entry_fg,
-            arrowcolor=self.text_color
+            arrowcolor=self.primary_color,
+            bordercolor=self.entry_border
         )
         
         self.combo_student = ttk.Combobox(
             select_frame, font=("Segoe UI", 10), state="readonly", style="TCombobox"
         )
-        self.combo_student.grid(row=0, column=1, sticky="ew")
+        self.combo_student.grid(row=0, column=1, sticky="ew", ipady=3)
         select_frame.columnconfigure(1, weight=1)
         
         # Bind combobox selection change
@@ -81,7 +101,7 @@ class SubjectAssignmentForm(tk.Toplevel):
         
         # 2. Side-by-Side Lists Area
         lists_frame = tk.Frame(self, bg=self.bg_color)
-        lists_frame.pack(fill="both", expand=True, padx=25, pady=(15, 20))
+        lists_frame.pack(fill="both", expand=True, padx=30, pady=(15, 20))
         lists_frame.rowconfigure(0, weight=1)
         lists_frame.columnconfigure(0, weight=4) # Available list
         lists_frame.columnconfigure(1, weight=1) # Buttons center
@@ -90,7 +110,8 @@ class SubjectAssignmentForm(tk.Toplevel):
         # --- LEFT: Available Subjects Frame ---
         left_frame = tk.LabelFrame(
             lists_frame, text="Available Subjects", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.student_color, labelanchor="n", padx=10, pady=10
+            bg=self.card_color, fg=self.primary_color, labelanchor="n", padx=10, pady=10,
+            highlightbackground=self.entry_border, highlightthickness=1, bd=0
         )
         left_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
         
@@ -99,36 +120,43 @@ class SubjectAssignmentForm(tk.Toplevel):
         
         self.list_available = tk.Listbox(
             left_frame, font=("Segoe UI", 10), bg=self.entry_bg, fg=self.entry_fg,
-            selectbackground=self.primary_color, selectforeground=self.bg_color,
+            selectbackground=self.secondary_color, selectforeground="#FFFFFF",
             bd=0, highlightthickness=0, yscrollcommand=scroll_avail.set
         )
-        self.list_available.pack(fill="both", expand=True)
+        self.list_available.pack(fill="both", expand=True, pady=5)
         scroll_avail.config(command=self.list_available.yview)
         
         # --- CENTER: Action Buttons Frame ---
         center_frame = tk.Frame(lists_frame, bg=self.bg_color)
-        center_frame.grid(row=0, column=1)
+        center_frame.grid(row=0, column=1, padx=10)
         
         # Assign Button (Available -> Assigned)
         self.btn_assign = tk.Button(
             center_frame, text="Assign ->", font=("Segoe UI", 10, "bold"),
-            bg=self.student_color, fg=self.bg_color, relief="flat", bd=0,
-            cursor="hand2", command=self.assign_subject
+            bg=self.success_color, fg="#FFFFFF", relief="flat", bd=0,
+            cursor="hand2", activebackground="#34D399", activeforeground="#FFFFFF",
+            command=self.assign_subject
         )
         self.btn_assign.pack(fill="x", ipady=8, pady=(0, 15))
+        self.btn_assign.bind("<Enter>", lambda e: self.btn_assign.config(bg="#34D399"))
+        self.btn_assign.bind("<Leave>", lambda e: self.btn_assign.config(bg=self.success_color))
         
         # Remove Button (Assigned -> Available)
         self.btn_remove = tk.Button(
             center_frame, text="<- Remove", font=("Segoe UI", 10, "bold"),
-            bg=self.delete_color, fg=self.bg_color, relief="flat", bd=0,
-            cursor="hand2", command=self.remove_subject
+            bg=self.delete_color, fg="#FFFFFF", relief="flat", bd=0,
+            cursor="hand2", activebackground="#F87171", activeforeground="#FFFFFF",
+            command=self.remove_subject
         )
         self.btn_remove.pack(fill="x", ipady=8)
+        self.btn_remove.bind("<Enter>", lambda e: self.btn_remove.config(bg="#F87171"))
+        self.btn_remove.bind("<Leave>", lambda e: self.btn_remove.config(bg=self.delete_color))
         
         # --- RIGHT: Assigned Subjects Frame ---
         right_frame = tk.LabelFrame(
             lists_frame, text="Assigned Subjects", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.subject_color, labelanchor="n", padx=10, pady=10
+            bg=self.card_color, fg=self.secondary_color, labelanchor="n", padx=10, pady=10,
+            highlightbackground=self.entry_border, highlightthickness=1, bd=0
         )
         right_frame.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
@@ -137,10 +165,10 @@ class SubjectAssignmentForm(tk.Toplevel):
         
         self.list_assigned = tk.Listbox(
             right_frame, font=("Segoe UI", 10), bg=self.entry_bg, fg=self.entry_fg,
-            selectbackground=self.primary_color, selectforeground=self.bg_color,
+            selectbackground=self.secondary_color, selectforeground="#FFFFFF",
             bd=0, highlightthickness=0, yscrollcommand=scroll_assign.set
         )
-        self.list_assigned.pack(fill="both", expand=True)
+        self.list_assigned.pack(fill="both", expand=True, pady=5)
         scroll_assign.config(command=self.list_assigned.yview)
 
     def populate_students(self):

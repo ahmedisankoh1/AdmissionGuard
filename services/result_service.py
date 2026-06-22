@@ -179,3 +179,19 @@ class ResultService:
                 "total_mark": r[6]
             })
         return results_list
+
+    def calculate_student_mean(self, student_id):
+        """
+        Calculates the mean score for a student based on all recorded subjects.
+        Returns the float mean value, or None if no results exist.
+        """
+        query = "SELECT total_mark FROM results WHERE student_id = ?;"
+        try:
+            rows = self.db_manager.fetch_all(query, (student_id,))
+            if not rows:
+                return None
+            total_sum = sum(r[0] for r in rows)
+            count = len(rows)
+            return total_sum / count
+        except Exception as e:
+            raise Exception(f"Database query failed during mean calculation: {e}")

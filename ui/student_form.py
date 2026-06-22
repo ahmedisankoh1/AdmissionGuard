@@ -4,30 +4,27 @@ from tkinter import messagebox
 from datetime import datetime
 from utils.validators import StudentValidationError
 
-class StudentForm(tk.Toplevel):
+class StudentForm(tk.Frame):
     """
     Tkinter Student Registration Form.
-    Inherits from tk.Toplevel so it can be opened from the main navigation hub.
+    Inherits from tk.Frame to load inside the main window's content frame.
     """
 
     def __init__(self, parent, student_service):
-        # Initialize Toplevel window with parent
         super().__init__(parent)
         self.student_service = student_service
         
-        # Window settings
-        self.title("Student Management System - Registration")
-        self.geometry("480x580")
-        self.resizable(False, False)
-        
-        # Theme colors (Sleek dark mode)
-        self.bg_color = "#1e1e2e"       # Dark background
-        self.card_color = "#252538"     # Inside container background
-        self.text_color = "#f8f8f2"     # Light white text
-        self.primary_color = "#74c7ec"  # Light blue for Save Button
-        self.accent_color = "#f38ba8"   # Pinkish red for Clear Button
-        self.entry_bg = "#313244"       # Input box background
-        self.entry_fg = "#cdd6f4"       # Input box text
+        # Color palette (Professional Education theme)
+        self.bg_color = "#F8FAFC"
+        self.card_color = "#FFFFFF"
+        self.text_primary = "#111827"
+        self.text_secondary = "#6B7280"
+        self.primary_color = "#1E3A8A"   # Deep Blue
+        self.secondary_color = "#3B82F6" # Bright Blue
+        self.accent_color = "#EF4444"    # Red
+        self.entry_bg = "#F8FAFC"
+        self.entry_fg = "#111827"
+        self.entry_border = "#E2E8F0"
         
         self.configure(bg=self.bg_color)
         
@@ -35,75 +32,96 @@ class StudentForm(tk.Toplevel):
         self.create_widgets()
         
     def create_widgets(self):
-        # Header title
+        # Header title frame
+        header_frame = tk.Frame(self, bg=self.bg_color)
+        header_frame.pack(fill="x", padx=30, pady=(20, 10))
+
         title_label = tk.Label(
-            self,
+            header_frame,
             text="Student Registration",
-            font=("Segoe UI", 20, "bold"),
+            font=("Segoe UI", 16, "bold"),
             bg=self.bg_color,
-            fg=self.primary_color
+            fg=self.primary_color,
+            anchor="w"
         )
-        title_label.pack(pady=15)
+        title_label.pack(fill="x")
+        
+        lbl_subtitle = tk.Label(
+            header_frame,
+            text="Register a new student in the database. All fields marked with * are required.",
+            font=("Segoe UI", 10),
+            bg=self.bg_color,
+            fg=self.text_secondary,
+            anchor="w"
+        )
+        lbl_subtitle.pack(fill="x", pady=(2, 0))
         
         # Card container to hold the forms
         self.form_frame = tk.Frame(
             self,
             bg=self.card_color,
-            padx=25,
-            pady=20
+            padx=30,
+            pady=25,
+            highlightbackground=self.entry_border,
+            highlightthickness=1,
+            bd=0
         )
-        self.form_frame.pack(fill="x", padx=25, pady=5)
+        self.form_frame.pack(fill="x", padx=30, pady=10)
+        
+        # Grid layout configurations for columns
+        self.form_frame.columnconfigure(0, weight=1)
+        self.form_frame.columnconfigure(1, weight=1)
         
         # 1. Admission Number
         self.label_admission = tk.Label(
-            self.form_frame, text="Admission Number *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
+            self.form_frame, text="Admission Number *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         )
-        self.label_admission.grid(row=0, column=0, sticky="w", pady=(0, 5))
+        self.label_admission.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 5))
         
         self.entry_admission = tk.Entry(
-            self.form_frame, font=("Segoe UI", 11),
-            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_color,
-            bd=0, highlightthickness=1, highlightbackground="#45475a", highlightcolor=self.primary_color
+            self.form_frame, font=("Segoe UI", 10),
+            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_primary,
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border, highlightcolor=self.primary_color
         )
-        self.entry_admission.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 12), ipady=4)
+        self.entry_admission.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 15), ipady=5)
         
         # 2. Full Name
         self.label_name = tk.Label(
-            self.form_frame, text="Full Name *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
+            self.form_frame, text="Full Name *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         )
-        self.label_name.grid(row=2, column=0, sticky="w", pady=(0, 5))
+        self.label_name.grid(row=2, column=0, columnspan=2, sticky="w", pady=(0, 5))
         
         self.entry_name = tk.Entry(
-            self.form_frame, font=("Segoe UI", 11),
-            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_color,
-            bd=0, highlightthickness=1, highlightbackground="#45475a", highlightcolor=self.primary_color
+            self.form_frame, font=("Segoe UI", 10),
+            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_primary,
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border, highlightcolor=self.primary_color
         )
-        self.entry_name.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(0, 12), ipady=4)
+        self.entry_name.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(0, 15), ipady=5)
         
         # 3. Age
         self.label_age = tk.Label(
-            self.form_frame, text="Age (14 - 20) *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
+            self.form_frame, text="Age (14 - 20) *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         )
         self.label_age.grid(row=4, column=0, sticky="w", pady=(0, 5))
         
         self.entry_age = tk.Entry(
-            self.form_frame, font=("Segoe UI", 11),
-            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_color,
-            bd=0, highlightthickness=1, highlightbackground="#45475a", highlightcolor=self.primary_color
+            self.form_frame, font=("Segoe UI", 10),
+            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_primary,
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border, highlightcolor=self.primary_color
         )
-        self.entry_age.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(0, 12), ipady=4)
+        self.entry_age.grid(row=5, column=0, sticky="ew", pady=(0, 15), ipady=5, padx=(0, 10))
         
         # 4. Gender (Dropdown)
         self.label_gender = tk.Label(
-            self.form_frame, text="Gender *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
+            self.form_frame, text="Gender *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         )
-        self.label_gender.grid(row=6, column=0, sticky="w", pady=(0, 5))
+        self.label_gender.grid(row=4, column=1, sticky="w", pady=(0, 5))
         
-        # Configure modern style for Combobox
+        # Configure style for Combobox
         style = ttk.Style()
         style.theme_use('clam')
         style.configure(
@@ -111,60 +129,61 @@ class StudentForm(tk.Toplevel):
             fieldbackground=self.entry_bg,
             background=self.entry_bg,
             foreground=self.entry_fg,
-            arrowcolor=self.text_color
+            arrowcolor=self.primary_color,
+            bordercolor=self.entry_border
         )
         
         self.combo_gender = ttk.Combobox(
-            self.form_frame, font=("Segoe UI", 11), state="readonly", style="TCombobox"
+            self.form_frame, font=("Segoe UI", 10), state="readonly", style="TCombobox"
         )
         self.combo_gender['values'] = ("Select Gender", "Male", "Female", "Other")
         self.combo_gender.current(0)
-        self.combo_gender.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(0, 12), ipady=2)
+        self.combo_gender.grid(row=5, column=1, sticky="ew", pady=(0, 15), ipady=4)
         
         # 5. Date of Admission
         self.label_date = tk.Label(
-            self.form_frame, text="Date of Admission (YYYY-MM-DD) *", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.text_color
+            self.form_frame, text="Date of Admission (YYYY-MM-DD) *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         )
-        self.label_date.grid(row=8, column=0, sticky="w", pady=(0, 5))
+        self.label_date.grid(row=6, column=0, columnspan=2, sticky="w", pady=(0, 5))
         
         self.entry_date = tk.Entry(
-            self.form_frame, font=("Segoe UI", 11),
-            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_color,
-            bd=0, highlightthickness=1, highlightbackground="#45475a", highlightcolor=self.primary_color
+            self.form_frame, font=("Segoe UI", 10),
+            bg=self.entry_bg, fg=self.entry_fg, insertbackground=self.text_primary,
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border, highlightcolor=self.primary_color
         )
         # Prefill date box with today's date
         today_date = datetime.now().strftime("%Y-%m-%d")
         self.entry_date.insert(0, today_date)
-        self.entry_date.grid(row=9, column=0, columnspan=2, sticky="ew", pady=(0, 10), ipady=4)
+        self.entry_date.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(0, 5), ipady=5)
         
-        # Make grid elements expand to fill space
-        self.form_frame.columnconfigure(0, weight=1)
-        self.form_frame.columnconfigure(1, weight=1)
-        
-        # Button container frame
-        btn_frame = tk.Frame(self, bg=self.bg_color)
-        btn_frame.pack(fill="x", pady=15, padx=25)
+        # Button container frame inside form_frame
+        btn_frame = tk.Frame(self.form_frame, bg=self.card_color)
+        btn_frame.grid(row=8, column=0, columnspan=2, sticky="ew", pady=(15, 0))
         btn_frame.columnconfigure(0, weight=1)
         btn_frame.columnconfigure(1, weight=1)
         
         # Clear Form Button
         self.btn_clear = tk.Button(
-            btn_frame, text="Clear Form", font=("Segoe UI", 11, "bold"),
-            bg=self.accent_color, fg=self.bg_color, relief="flat", bd=0,
-            activebackground="#e07a5f", activeforeground=self.bg_color,
+            btn_frame, text="Clear Form", font=("Segoe UI", 10, "bold"),
+            bg=self.accent_color, fg="#FFFFFF", relief="flat", bd=0,
+            activebackground="#F87171", activeforeground="#FFFFFF",
             cursor="hand2", command=self.clear_form
         )
         self.btn_clear.grid(row=0, column=0, padx=(0, 10), sticky="ew", ipady=8)
+        self.btn_clear.bind("<Enter>", lambda e: self.btn_clear.config(bg="#F87171"))
+        self.btn_clear.bind("<Leave>", lambda e: self.btn_clear.config(bg=self.accent_color))
         
         # Save Student Button
         self.btn_save = tk.Button(
-            btn_frame, text="Save Student", font=("Segoe UI", 11, "bold"),
-            bg=self.primary_color, fg=self.bg_color, relief="flat", bd=0,
-            activebackground="#a6e3a1", activeforeground=self.bg_color,
+            btn_frame, text="Save Student", font=("Segoe UI", 10, "bold"),
+            bg=self.primary_color, fg="#FFFFFF", relief="flat", bd=0,
+            activebackground=self.secondary_color, activeforeground="#FFFFFF",
             cursor="hand2", command=self.save_student
         )
         self.btn_save.grid(row=0, column=1, padx=(10, 0), sticky="ew", ipady=8)
+        self.btn_save.bind("<Enter>", lambda e: self.btn_save.config(bg=self.secondary_color))
+        self.btn_save.bind("<Leave>", lambda e: self.btn_save.config(bg=self.primary_color))
 
     def save_student(self):
         # Retrieve values from text entries
@@ -194,7 +213,7 @@ class StudentForm(tk.Toplevel):
             self.clear_form()
             
         except StudentValidationError as e:
-            # Handle validation rule failures
+            # Handle validation failures
             messagebox.showerror("Validation Error", str(e))
         except Exception as e:
             # Handle unexpected database issues

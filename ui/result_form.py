@@ -3,10 +3,10 @@ from tkinter import ttk
 from tkinter import messagebox
 from utils.validators import StudentValidationError
 
-class ResultForm(tk.Toplevel):
+class ResultForm(tk.Frame):
     """
     Tkinter Result Management Form.
-    Allows recording, updating, and viewing student results.
+    Inherits from tk.Frame to load inside the main window's content frame.
     """
 
     def __init__(self, parent, student_service, assignment_service, result_service):
@@ -19,45 +19,109 @@ class ResultForm(tk.Toplevel):
         self.selected_result_id = None
         self.assigned_subjects = []  # List of Subject models for selected student
 
-        # Window configuration
-        self.title("Result Management")
-        self.geometry("750x550")
-        self.resizable(False, False)
-        
-        # Theme colors matching existing styles
-        self.bg_color = "#1e1e2e"
-        self.card_color = "#252538"
-        self.text_color = "#f8f8f2"
-        self.primary_color = "#74c7ec"   # Light Blue (Title)
-        self.student_color = "#a6e3a1"   # Green (Save button)
-        self.subject_color = "#cba6f7"   # Purple (Treeview columns)
-        self.assign_color = "#f9e2af"    # Yellow (Calculate button)
-        self.delete_color = "#f38ba8"    # Red (Clear button)
-        self.entry_bg = "#313244"
-        self.entry_fg = "#cdd6f4"
+        # Color palette (Professional Education theme)
+        self.bg_color = "#F8FAFC"
+        self.card_color = "#FFFFFF"
+        self.text_primary = "#111827"
+        self.text_secondary = "#6B7280"
+        self.primary_color = "#1E3A8A"   # Deep Blue
+        self.secondary_color = "#3B82F6" # Bright Blue
+        self.success_color = "#10B981"   # Success Green (active/hover)
+        self.delete_color = "#EF4444"    # Red
+        self.entry_bg = "#F8FAFC"
+        self.entry_fg = "#111827"
+        self.entry_border = "#E2E8F0"
         
         self.configure(bg=self.bg_color)
         
+        # Setup modern styles
+        self.setup_styles()
+
         # Create UI components
         self.create_widgets()
         
         # Load students dropdown
         self.populate_students()
 
+    def setup_styles(self):
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Style Comboboxes
+        style.configure(
+            "TCombobox",
+            fieldbackground=self.entry_bg,
+            background=self.entry_bg,
+            foreground=self.entry_fg,
+            arrowcolor=self.primary_color,
+            bordercolor=self.entry_border
+        )
+        
+        # Style the Treeview container
+        style.configure(
+            "Result.Treeview",
+            background=self.card_color,
+            fieldbackground=self.card_color,
+            foreground=self.text_primary,
+            rowheight=28,
+            bordercolor=self.entry_border,
+            borderwidth=0,
+            font=("Segoe UI", 10)
+        )
+        
+        # Style the Treeview headers
+        style.configure(
+            "Result.Treeview.Heading",
+            background="#F1F5F9",
+            foreground=self.primary_color,
+            font=("Segoe UI", 10, "bold"),
+            borderwidth=1,
+            bordercolor=self.entry_border
+        )
+        
+        # Change color of selected row in table
+        style.map(
+            "Result.Treeview",
+            background=[('selected', self.secondary_color)],
+            foreground=[('selected', "#FFFFFF")]
+        )
+
     def create_widgets(self):
         # Header Title
+        header_frame = tk.Frame(self, bg=self.bg_color)
+        header_frame.pack(fill="x", padx=30, pady=(20, 10))
+
         title_label = tk.Label(
-            self,
+            header_frame,
             text="Result Management Module",
             font=("Segoe UI", 16, "bold"),
             bg=self.bg_color,
-            fg=self.primary_color
+            fg=self.primary_color,
+            anchor="w"
         )
-        title_label.pack(pady=(15, 10))
+        title_label.pack(fill="x")
+
+        lbl_subtitle = tk.Label(
+            header_frame,
+            text="Record academic results for students. Double-click a row below to edit or update marks.",
+            font=("Segoe UI", 10),
+            bg=self.bg_color,
+            fg=self.text_secondary,
+            anchor="w"
+        )
+        lbl_subtitle.pack(fill="x", pady=(2, 0))
 
         # --- UPPER CARD: Form Controls ---
-        form_frame = tk.Frame(self, bg=self.card_color, padx=15, pady=15)
-        form_frame.pack(fill="x", padx=25, pady=5)
+        form_frame = tk.Frame(
+            self,
+            bg=self.card_color,
+            padx=20,
+            pady=20,
+            highlightbackground=self.entry_border,
+            highlightthickness=1,
+            bd=0
+        )
+        form_frame.pack(fill="x", padx=30, pady=5)
         form_frame.columnconfigure(0, weight=1)
         form_frame.columnconfigure(1, weight=1)
 
@@ -67,35 +131,24 @@ class ResultForm(tk.Toplevel):
         
         tk.Label(
             left_column, text="Select Student *", font=("Segoe UI", 9, "bold"),
-            bg=self.card_color, fg=self.text_color
-        ).pack(anchor="w", pady=(0, 2))
-        
-        # Style Comboboxes
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure(
-            "TCombobox",
-            fieldbackground=self.entry_bg,
-            background=self.entry_bg,
-            foreground=self.entry_fg,
-            arrowcolor=self.text_color
-        )
+            bg=self.card_color, fg=self.text_primary
+        ).pack(anchor="w", pady=(0, 5))
         
         self.combo_student = ttk.Combobox(
             left_column, font=("Segoe UI", 10), state="readonly", style="TCombobox"
         )
-        self.combo_student.pack(fill="x", pady=(0, 10))
+        self.combo_student.pack(fill="x", ipady=3, pady=(0, 15))
         self.combo_student.bind("<<ComboboxSelected>>", self.on_student_select)
 
         tk.Label(
             left_column, text="Select Subject *", font=("Segoe UI", 9, "bold"),
-            bg=self.card_color, fg=self.text_color
-        ).pack(anchor="w", pady=(0, 2))
+            bg=self.card_color, fg=self.text_primary
+        ).pack(anchor="w", pady=(0, 5))
         
         self.combo_subject = ttk.Combobox(
             left_column, font=("Segoe UI", 10), state="readonly", style="TCombobox"
         )
-        self.combo_subject.pack(fill="x")
+        self.combo_subject.pack(fill="x", ipady=3)
 
         # Right Column: Marks Input
         right_column = tk.Frame(form_frame, bg=self.card_color)
@@ -106,96 +159,86 @@ class ResultForm(tk.Toplevel):
         marks_grid.columnconfigure(1, weight=1)
 
         tk.Label(
-            marks_grid, text="Assessment Mark (0-30) *", font=("Segoe UI", 9, "bold"),
-            bg=self.card_color, fg=self.text_color
+            marks_grid, text="Assessment (0-30) *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         ).grid(row=0, column=0, sticky="w", pady=5)
         
         self.entry_assessment = tk.Entry(
             marks_grid, font=("Segoe UI", 10), bg=self.entry_bg, fg=self.entry_fg,
-            bd=0, highlightthickness=1, highlightbackground="#45475a",
-            highlightcolor=self.primary_color, insertbackground=self.text_color
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border,
+            highlightcolor=self.primary_color, insertbackground=self.text_primary
         )
-        self.entry_assessment.grid(row=0, column=1, sticky="ew", padx=(10, 0), ipady=3)
+        self.entry_assessment.grid(row=0, column=1, sticky="ew", padx=(10, 0), ipady=5)
 
         tk.Label(
-            marks_grid, text="Exam Mark (0-70) *", font=("Segoe UI", 9, "bold"),
-            bg=self.card_color, fg=self.text_color
+            marks_grid, text="Exam (0-70) *", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         ).grid(row=1, column=0, sticky="w", pady=5)
         
         self.entry_exam = tk.Entry(
             marks_grid, font=("Segoe UI", 10), bg=self.entry_bg, fg=self.entry_fg,
-            bd=0, highlightthickness=1, highlightbackground="#45475a",
-            highlightcolor=self.primary_color, insertbackground=self.text_color
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border,
+            highlightcolor=self.primary_color, insertbackground=self.text_primary
         )
-        self.entry_exam.grid(row=1, column=1, sticky="ew", padx=(10, 0), ipady=3)
+        self.entry_exam.grid(row=1, column=1, sticky="ew", padx=(10, 0), ipady=5)
 
         tk.Label(
-            marks_grid, text="Total Mark (0-100)", font=("Segoe UI", 9, "bold"),
-            bg=self.card_color, fg=self.text_color
+            marks_grid, text="Total (0-100)", font=("Segoe UI", 9, "bold"),
+            bg=self.card_color, fg=self.text_primary
         ).grid(row=2, column=0, sticky="w", pady=5)
         
         self.entry_total = tk.Entry(
             marks_grid, font=("Segoe UI", 10, "bold"), bg=self.entry_bg, fg=self.entry_fg,
-            bd=0, highlightthickness=1, highlightbackground="#45475a",
+            bd=0, highlightthickness=1, highlightbackground=self.entry_border,
             state="readonly"  # Make total read-only
         )
-        self.entry_total.grid(row=2, column=1, sticky="ew", padx=(10, 0), ipady=3)
+        self.entry_total.grid(row=2, column=1, sticky="ew", padx=(10, 0), ipady=5)
 
         # Action Buttons Container
         buttons_frame = tk.Frame(form_frame, bg=self.card_color)
-        buttons_frame.grid(row=1, column=0, columnspan=2, pady=(15, 0))
+        buttons_frame.grid(row=1, column=0, columnspan=2, pady=(20, 0))
 
         # Calculate Button
         self.btn_calculate = tk.Button(
-            buttons_frame, text="Calculate Total", font=("Segoe UI", 9, "bold"),
-            bg=self.assign_color, fg=self.bg_color, relief="flat", bd=0,
+            buttons_frame, text="Calculate Total", font=("Segoe UI", 10, "bold"),
+            bg=self.secondary_color, fg="#FFFFFF", relief="flat", bd=0,
             cursor="hand2", command=self.calculate_total_display
         )
-        self.btn_calculate.pack(side="left", padx=5, ipady=6, ipadx=10)
+        self.btn_calculate.pack(side="left", padx=5, ipady=8, ipadx=12)
+        self.btn_calculate.bind("<Enter>", lambda e: self.btn_calculate.config(bg=self.primary_color))
+        self.btn_calculate.bind("<Leave>", lambda e: self.btn_calculate.config(bg=self.secondary_color))
 
         # Save Button
         self.btn_save = tk.Button(
-            buttons_frame, text="Save Result", font=("Segoe UI", 9, "bold"),
-            bg=self.student_color, fg=self.bg_color, relief="flat", bd=0,
+            buttons_frame, text="Save Result", font=("Segoe UI", 10, "bold"),
+            bg=self.primary_color, fg="#FFFFFF", relief="flat", bd=0,
             cursor="hand2", command=self.save_result
         )
-        self.btn_save.pack(side="left", padx=5, ipady=6, ipadx=10)
+        self.btn_save.pack(side="left", padx=5, ipady=8, ipadx=12)
+        self.btn_save.bind("<Enter>", lambda e: self.btn_save.config(bg=self.secondary_color))
+        self.btn_save.bind("<Leave>", lambda e: self.btn_save.config(bg=self.primary_color))
 
         # Clear Button
         self.btn_clear = tk.Button(
-            buttons_frame, text="Clear Form", font=("Segoe UI", 9, "bold"),
-            bg=self.delete_color, fg=self.bg_color, relief="flat", bd=0,
+            buttons_frame, text="Clear Form", font=("Segoe UI", 10, "bold"),
+            bg=self.delete_color, fg="#FFFFFF", relief="flat", bd=0,
             cursor="hand2", command=self.clear_form
         )
-        self.btn_clear.pack(side="left", padx=5, ipady=6, ipadx=10)
+        self.btn_clear.pack(side="left", padx=5, ipady=8, ipadx=12)
+        self.btn_clear.bind("<Enter>", lambda e: self.btn_clear.config(bg="#F87171"))
+        self.btn_clear.bind("<Leave>", lambda e: self.btn_clear.config(bg=self.delete_color))
 
         # --- LOWER CARD: Results Table ---
         table_frame = tk.LabelFrame(
             self, text="Student Results Table", font=("Segoe UI", 10, "bold"),
-            bg=self.card_color, fg=self.subject_color, labelanchor="n", padx=10, pady=10
+            bg=self.card_color, fg=self.primary_color, labelanchor="n", padx=10, pady=10,
+            highlightbackground=self.entry_border, highlightthickness=1, bd=0
         )
-        table_frame.pack(fill="both", expand=True, padx=25, pady=(15, 20))
-
-        # Customize Treeview style
-        style.configure(
-            "Treeview",
-            background=self.entry_bg,
-            fieldbackground=self.entry_bg,
-            foreground=self.entry_fg,
-            rowheight=24,
-            font=("Segoe UI", 9)
-        )
-        style.configure(
-            "Treeview.Heading",
-            background=self.bg_color,
-            foreground=self.text_color,
-            font=("Segoe UI", 9, "bold")
-        )
-        style.map("Treeview", background=[('selected', self.primary_color)], foreground=[('selected', self.bg_color)])
+        table_frame.pack(fill="both", expand=True, padx=30, pady=(15, 20))
 
         # Treeview setup
         cols = ("Subject", "Assessment Mark", "Exam Mark", "Total Mark")
-        self.tree_results = ttk.Treeview(table_frame, columns=cols, show="headings", style="Treeview")
+        self.tree_results = ttk.Treeview(table_frame, columns=cols, show="headings", style="Result.Treeview")
         
         self.tree_results.heading("Subject", text="Subject")
         self.tree_results.heading("Assessment Mark", text="Assessment Mark (30)")
@@ -207,12 +250,23 @@ class ResultForm(tk.Toplevel):
         self.tree_results.column("Exam Mark", width=130, anchor="center")
         self.tree_results.column("Total Mark", width=130, anchor="center")
 
+        # Treeview container subframe
+        tree_container = tk.Frame(table_frame, bg=self.card_color)
+        tree_container.pack(fill="both", expand=True)
+
         # Scrollbar
-        scroll = tk.Scrollbar(table_frame, orient="vertical", command=self.tree_results.yview)
+        scroll = tk.Scrollbar(tree_container, orient="vertical", command=self.tree_results.yview)
         self.tree_results.configure(yscrollcommand=scroll.set)
         
-        self.tree_results.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
+        self.tree_results.pack(side="left", fill="both", expand=True, padx=(5, 0), pady=5)
+        scroll.pack(side="right", fill="y", pady=5)
+
+        # Mean Score Display Label
+        self.lbl_mean_score = tk.Label(
+            table_frame, text="Mean Score: N/A", font=("Segoe UI", 11, "bold"),
+            bg=self.card_color, fg=self.success_color
+        )
+        self.lbl_mean_score.pack(anchor="e", pady=(5, 5), padx=15)
 
         # Double click to select/edit result
         self.tree_results.bind("<Double-1>", self.on_row_select)
@@ -340,6 +394,7 @@ class ResultForm(tk.Toplevel):
     def refresh_results_table(self):
         self.clear_table()
         if self.selected_student_id is None:
+            self.lbl_mean_score.config(text="Mean Score: N/A")
             return
 
         try:
@@ -356,6 +411,13 @@ class ResultForm(tk.Toplevel):
                         r["total_mark"]
                     )
                 )
+
+            # Calculate and display student's mean score
+            mean = self.result_service.calculate_student_mean(self.selected_student_id)
+            if mean is not None:
+                self.lbl_mean_score.config(text=f"Mean Score: {mean:.2f}")
+            else:
+                self.lbl_mean_score.config(text="Mean Score: N/A")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load results table: {e}")
 
@@ -369,7 +431,7 @@ class ResultForm(tk.Toplevel):
             return
 
         result_id = int(selected_item[0])
-        values = self.tree_results.item(result_item:=selected_item[0], "values")
+        values = self.tree_results.item(selected_item[0], "values")
         
         # Set selection tracking
         self.selected_result_id = result_id
@@ -416,6 +478,7 @@ class ResultForm(tk.Toplevel):
             self.combo_subject.set("")
             self.combo_subject['values'] = ()
             self.clear_table()
+            self.lbl_mean_score.config(text="Mean Score: N/A")
         else:
             # Keep student, but reset subject to default if possible
             if self.combo_subject['values']:
@@ -423,7 +486,7 @@ class ResultForm(tk.Toplevel):
             else:
                 self.combo_subject.set("")
 
-        self.btn_save.config(text="Save Result", bg=self.student_color)
+        self.btn_save.config(text="Save Result", bg=self.primary_color)
 
     def clear_table(self):
         for item in self.tree_results.get_children():

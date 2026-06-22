@@ -3,6 +3,8 @@ from services.student_service import StudentService
 from services.subject_service import SubjectService
 from services.assignment_service import AssignmentService
 from services.result_service import ResultService
+from services.search_service import SearchService
+from services.auth_service import AuthService
 from ui.main_window import MainWindow
 
 def main():
@@ -14,10 +16,12 @@ def main():
     subject_service = SubjectService(db_manager)
     assignment_service = AssignmentService(db_manager)
     result_service = ResultService(db_manager)
+    search_service = SearchService(db_manager)
+    auth_service = AuthService(db_manager)
     
     # 3. Create the MainWindow navigation hub with all services
     print("Launching Student Management System Hub...")
-    app = MainWindow(student_service, subject_service, assignment_service, result_service)
+    app = MainWindow(student_service, subject_service, assignment_service, result_service, search_service, auth_service)
     
     # 4. Start the event mainloop
     app.mainloop()
